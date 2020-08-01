@@ -45,6 +45,8 @@ class ClientManager {
       this.client.ws.connect(gateway);
       this.client.ws.connection.once('error', reject);
       this.client.ws.connection.once('close', event => {
+        if (event.code === 4013) reject(new Error(`${event.code} - ${event.reason}`));
+        if (event.code === 4014) reject(new Error(`${event.code} - ${event.reason} check developer portal`));
         if (event.code === 4004) reject(new Error(Constants.Errors.BAD_LOGIN));
         if (event.code === 4010) reject(new Error(Constants.Errors.INVALID_SHARD));
         if (event.code === 4011) reject(new Error(Constants.Errors.SHARDING_REQUIRED));

@@ -53,6 +53,7 @@ exports.DefaultOptions = {
    * @typedef {Object} WebsocketOptions
    * @property {number} [large_threshold=250] Number of members in a guild to be considered large
    * @property {boolean} [compress=true] Whether to compress data sent on the connection
+   * @property {IntentsResolvable} [intents] Intents to enable for this connection
    * (defaults to `false` for browsers)
    */
   ws: {
@@ -72,14 +73,14 @@ exports.DefaultOptions = {
    * HTTP options
    * @typedef {Object} HTTPOptions
    * @property {number} [version=7] API version to use
-   * @property {string} [api='https://discordapp.com/api'] Base url of the API
-   * @property {string} [cdn='https://cdn.discordapp.com'] Base url of the CDN
+   * @property {string} [api='https://discord.com/api'] Base url of the API
+   * @property {string} [cdn='https://cdn.discord.com'] Base url of the CDN
    * @property {string} [invite='https://discord.gg'] Base url of invites
    */
   http: {
     version: 7,
-    host: 'https://discordapp.com',
-    cdn: 'https://cdn.discordapp.com',
+    host: 'https://discord.com',
+    cdn: 'https://cdn.discord.com',
   },
 };
 
@@ -395,7 +396,7 @@ exports.ActivityTypes = [
  * * `SYNC`
  * * `PLAY`
  * @typedef {string} ActivityFlag
- * @see {@link https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-flags}
+ * @see {@link https://discord.com/developers/docs/topics/gateway#activity-object-activity-flags}
  */
 exports.ActivityFlags = {
   INSTANCE: 1 << 0,

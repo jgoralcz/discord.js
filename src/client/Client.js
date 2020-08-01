@@ -13,6 +13,7 @@ const Collection = require('../util/Collection');
 const Presence = require('../structures/Presence').Presence;
 const ShardClientUtil = require('../sharding/ShardClientUtil');
 const VoiceBroadcast = require('./voice/VoiceBroadcast');
+const Intents = require('../util/Intents');
 
 /**
  * The main hub for interacting with the Discord API, and the starting point for any bot.
@@ -420,7 +421,7 @@ class Client extends EventEmitter {
   generateInvite(permissions) {
     permissions = Permissions.resolve(permissions);
     return this.fetchApplication().then(application =>
-      `https://discordapp.com/oauth2/authorize?client_id=${application.id}&permissions=${permissions}&scope=bot`
+      `https://discord.com/oauth2/authorize?client_id=${application.id}&permissions=${permissions}&scope=bot`
     );
   }
 
@@ -513,6 +514,9 @@ class Client extends EventEmitter {
    * @private
    */
   _validateOptions(options = this.options) { // eslint-disable-line complexity
+    if (typeof options.ws.intents !== 'undefined') {
+      options.ws.intents = Intents.resolve(options.ws.intents);
+    }
     if (typeof options.shardCount !== 'number' || isNaN(options.shardCount)) {
       throw new TypeError('The shardCount option must be a number.');
     }
