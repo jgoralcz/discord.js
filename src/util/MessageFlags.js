@@ -4,7 +4,7 @@ const BitField = require('./BitField');
  * Data structure that makes it easy to interact with an {@link Message#flags} bitfield.
  * @extends {BitField}
  */
-class MessageFlags extends BitField {}
+class MessageFlags extends BitField { }
 
 /**
  * Data that can be resolved to give a permission number. This can be:
@@ -23,7 +23,7 @@ class MessageFlags extends BitField {}
  * * `SOURCE_MESSAGE_DELETED`
  * * `URGENT`
  * @type {Object}
- * @see {@link https://discordapp.com/developers/docs/resources/channel#message-object-message-flags}
+ * @see {@link https://discord.com/developers/docs/resources/channel#message-object-message-flags}
  */
 MessageFlags.FLAGS = {
   CROSSPOSTED: 1 << 0,
