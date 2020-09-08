@@ -111,10 +111,10 @@ class Collector extends EventEmitter {
         this.client.clearTimeout(this._idletimeout);
         this._idletimeout = this.client.setTimeout(() => this.stop('idle'), this.options.idle);
       }
+      
+      const post = this.postCheck(...args);
+      if (post) this.stop(post);
     }
-
-    const post = this.postCheck(...args);
-    if (post) this.stop(post);
   }
 
   /**
