@@ -77,6 +77,7 @@ class Collector extends EventEmitter {
      * @private
      */
     this.listener = this._handle.bind(this);
+    this.removeListener = this._handleRemove.bind(this);
     if (options.time) this._timeout = this.client.setTimeout(() => this.stop('time'), options.time);
     if (options.idle) this._idletimeout = this.client.setTimeout(() => this.stop('idle'), options.idle);
   }
@@ -118,6 +119,29 @@ class Collector extends EventEmitter {
   }
 
   /**
+   * Call this to remove an element from the collection. Accepts any event data as parameters.
+   * @param {...*} args The arguments emitted by the listener
+   * @emits Collector#remove
+   * @private
+   */
+  _handleRemove(...args) {
+    const remove = this.remove(...args);
+    if (!remove || !this.filter(...args, this.collected)) return;
+    this.collected.delete(remove.key);
+
+    /**
+     * Emitted whenever an element is removed.
+     * @event Collector#remove
+     * @param {*} element The element that got removed.
+     * @param {Collector} collector The collector
+     */
+    this.emit('remove', remove.value, this);
+
+    const post = this.postCheck(...args);
+    if (post) this.stop(post);
+  }
+
+  /**
    * Return a promise that resolves with the next collected element;
    * rejects with collected elements if the collector finishes without receiving a next element
    * @type {Promise}
@@ -132,7 +156,13 @@ class Collector extends EventEmitter {
 
       const cleanup = () => {
         this.removeListener('collect', onCollect);
+        this.removeListener('remove', onRemove);
         this.removeListener('end', onEnd);
+      };
+
+      const onRemove = item => {
+        cleanup();
+        resolve(item);
       };
 
       const onCollect = item => {
@@ -146,6 +176,7 @@ class Collector extends EventEmitter {
       };
 
       this.on('collect', onCollect);
+      this.on('remove', onRemove);
       this.on('end', onEnd);
     });
   }
@@ -187,7 +218,17 @@ class Collector extends EventEmitter {
    * @returns {?{key: string, value}} Data to insert into collection, if any
    * @abstract
    */
-  handle() {}
+  handle() { }
+
+  /**
+   * Handles incoming events from the `removeListener` function. Returns null if the event should not
+   * be removed, or returns the key that should be removed.
+   * @see Collector#removeListener
+   * @param {...*} args Any args the event listener emits
+   * @returns {?{key: string, value}} Data to insert into collection, if any
+   * @abstract
+   */
+  remove() { }
 
   /**
    * This method runs after collection to see if the collector should finish.
@@ -195,13 +236,13 @@ class Collector extends EventEmitter {
    * @returns {?string} Reason to end the collector, if any
    * @abstract
    */
-  postCheck() {}
+  postCheck() { }
 
   /**
    * Called when the collector is ending.
    * @abstract
    */
-  cleanup() {}
+  cleanup() { }
   /* eslint-enable no-empty-function, valid-jsdoc */
 }
 

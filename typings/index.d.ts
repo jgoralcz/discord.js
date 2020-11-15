@@ -12,7 +12,7 @@ declare module 'discord.js' {
 
 	export const version: string;
 
-//#region Classes
+	//#region Classes
 
 	class Attachment {
 		constructor(file: BufferResolvable | Stream, name?: string);
@@ -385,6 +385,7 @@ declare module 'discord.js' {
 		private _timeout: NodeJS.Timer | null;
 		private _idletimeout: NodeJS.Timer | null;
 		private _handle(...args: any[]): void;
+		private _handleRemove(...args: any[]): void;
 
 		public readonly client: Client;
 		public collected: Collection<K, V>;
@@ -396,14 +397,17 @@ declare module 'discord.js' {
 
 		protected listener: Function;
 		public abstract cleanup(): void;
+		public abstract remove(...args: any[]): CollectorHandler<K, V>;
 		public abstract handle(...args: any[]): CollectorHandler<K, V>;
 		public abstract postCheck(...args: any[]): string | null;
 
 		public on(event: 'collect', listener: (element: V, collector: Collector<K, V>) => void): this;
+		public on(event: 'remove', listener: (element: V, collector: Collector<K, V>) => void): this;
 		public on(event: 'end', listener: (collected: Collection<K, V>, reason: string) => void): this;
 		public on(event: string, listener: Function): this;
 
 		public once(event: 'collect', listener: (element: V, collector: Collector<K, V>) => void): this;
+		public once(event: 'remove', listener: (element: V, collector: Collector<K, V>) => void): this;
 		public once(event: 'end', listener: (collected: Collection<K, V>, reason: string) => void): this;
 		public once(event: string, listener: Function): this;
 	}
@@ -867,6 +871,7 @@ declare module 'discord.js' {
 		public received: number;
 
 		public cleanup(): void;
+		public remove(message: Message): CollectorHandler<Snowflake, Message>;
 		public handle(message: Message): CollectorHandler<Snowflake, Message>;
 		public postCheck(): string;
 	}
@@ -1085,7 +1090,8 @@ declare module 'discord.js' {
 		public users: Collection<Snowflake, User>;
 
 		public cleanup(): void;
-		public handle(reaction: MessageReaction): CollectorHandler<Snowflake, MessageReaction>;
+		public remove(reaction: MessageReaction, user: User): CollectorHandler<Snowflake, MessageReaction>;
+		public handle(reaction: MessageReaction, user: User): CollectorHandler<Snowflake, MessageReaction>;
 		public postCheck(reaction: MessageReaction, user: User): string;
 	}
 
@@ -1694,9 +1700,9 @@ declare module 'discord.js' {
 		public setTimeout(fn: Function, delay: number, ...args: any[]): NodeJS.Timer;
 	}
 
-//#endregion
+	//#endregion
 
-//#region Mixins
+	//#region Mixins
 
 	// Model the TextBasedChannel mixin system, allowing application of these fields
 	// to the classes that use these methods without having to manually add them
@@ -1737,9 +1743,9 @@ declare module 'discord.js' {
 		stopTyping(force?: boolean): void;
 	} & PartialTextBasedChannelFields;
 
-//#endregion
+	//#endregion
 
-//#region Typedefs
+	//#region Typedefs
 
 	type ActivityType = 'PLAYING'
 		| 'STREAMING'
@@ -2061,7 +2067,7 @@ declare module 'discord.js' {
 	type InviteResolvable = string;
 
 	type MembershipStates = 'INVITED'
-	| 'ACCEPTED';
+		| 'ACCEPTED';
 
 	type MessageCollectorOptions = CollectorOptions & {
 		max?: number;
@@ -2436,5 +2442,5 @@ declare module 'discord.js' {
 		| 'RELATIONSHIP_ADD'
 		| 'RELATIONSHIP_REMOVE';
 
-//#endregion
+	//#endregion
 }

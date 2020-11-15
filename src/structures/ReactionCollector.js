@@ -41,6 +41,7 @@ class ReactionCollector extends Collector {
 
     if (this.client.getMaxListeners() !== 0) this.client.setMaxListeners(this.client.getMaxListeners() + 1);
     this.client.on('messageReactionAdd', this.listener);
+    this.client.on('messageReactionRemove', this.removeListener);
 
     this.on('fullCollect', (reaction, user) => {
       this.users.set(user.id, user);
@@ -54,10 +55,10 @@ class ReactionCollector extends Collector {
    * @returns {?{key: Snowflake, value: MessageReaction}}
    * @private
    */
-  handle(reaction) {
+  handle(reaction, user) {
     if (reaction.message.id !== this.message.id) return null;
     return {
-      key: reaction.emoji.id || reaction.emoji.name,
+      key: `${user.id}-${reaction.emoji.id || reaction.emoji.name}`,
       value: reaction,
     };
   }
@@ -77,11 +78,27 @@ class ReactionCollector extends Collector {
   }
 
   /**
+   * Handles a reaction deletion for possible removal.
+   * @param {MessageReaction} reaction The reaction to possibly remove of
+   * @param {User} user The user that removed the reaction
+   * @returns {?{key: Snowflake, value: MessageReaction}}
+   * @private
+   */
+  remove(reaction, user) {
+    if (reaction.message.id !== this.message.id) return null;
+    return {
+      key: `${user.id}-${reaction.emoji.id || reaction.emoji.name}`,
+      value: reaction, value: reaction,
+    };
+  };
+
+  /**
    * Remove event listeners.
    * @private
    */
   cleanup() {
     this.client.removeListener('messageReactionAdd', this.listener);
+    this.client.removeListener('messageReactionRemove', this.removeListener);
     if (this.client.getMaxListeners() !== 0) this.client.setMaxListeners(this.client.getMaxListeners() - 1);
   }
 }
