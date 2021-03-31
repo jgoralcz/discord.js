@@ -78,6 +78,11 @@ class ClientDataManager {
             break;
         }
 
+        if (!channel || !channel.id) {
+          console.error('channel not found - ', 'data.type:', data.type, channel);
+          return;
+        }
+
         guild.channels.set(channel.id, channel);
       }
     }
