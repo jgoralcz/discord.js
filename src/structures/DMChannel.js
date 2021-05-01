@@ -46,29 +46,64 @@ class DMChannel extends Channel {
     return this.recipient.toString();
   }
 
+  /**
+  * Fetch all webhooks for the channel.
+  * @returns {Promise<Collection<Snowflake, Webhook>>}
+  * @example
+  * // Fetch webhooks
+  * channel.fetchWebhooks()
+  *   .then(hooks => console.log(`This channel has ${hooks.size} hooks`))
+  *   .catch(console.error);
+  */
+  fetchWebhooks() {
+    return this.client.rest.methods.getChannelWebhooks(this);
+  }
+
+  /**
+  * Create a webhook for the channel.
+  * @param {string} name The name of the webhook
+  * @param {BufferResolvable|Base64Resolvable} [avatar] The avatar for the webhook
+  * @param {string} [reason] Reason for creating this webhook
+  * @returns {Promise<Webhook>} webhook The created webhook
+  * @example
+  * channel.createWebhook('Snek', 'https://i.imgur.com/mI8XcpG.jpg')
+  *   .then(webhook => console.log(`Created webhook ${webhook}`))
+  *   .catch(console.error)
+  */
+  createWebhook(name, avatar, reason) {
+    if (typeof avatar === 'string' && avatar.startsWith('data:')) {
+      return this.client.rest.methods.createWebhook(this, name, avatar, reason);
+    } else {
+      return this.client.resolver.resolveImage(avatar).then(data =>
+        this.client.rest.methods.createWebhook(this, name, data, reason)
+      );
+    }
+  }
+
+
   // These are here only for documentation purposes - they are implemented by TextBasedChannel
   /* eslint-disable no-empty-function */
-  get lastPinAt() {}
-  send() {}
-  sendMessage() {}
-  sendEmbed() {}
-  sendFile() {}
-  sendFiles() {}
-  sendCode() {}
-  fetchMessage() {}
-  fetchMessages() {}
-  fetchPinnedMessages() {}
-  search() {}
-  startTyping() {}
-  stopTyping() {}
-  get typing() {}
-  get typingCount() {}
-  createCollector() {}
-  createMessageCollector() {}
-  awaitMessages() {}
+  get lastPinAt() { }
+  send() { }
+  sendMessage() { }
+  sendEmbed() { }
+  sendFile() { }
+  sendFiles() { }
+  sendCode() { }
+  fetchMessage() { }
+  fetchMessages() { }
+  fetchPinnedMessages() { }
+  search() { }
+  startTyping() { }
+  stopTyping() { }
+  get typing() { }
+  get typingCount() { }
+  createCollector() { }
+  createMessageCollector() { }
+  awaitMessages() { }
   // Doesn't work on DM channels; bulkDelete() {}
-  acknowledge() {}
-  _cacheMessage() {}
+  acknowledge() { }
+  _cacheMessage() { }
 }
 
 TextBasedChannel.applyToClass(DMChannel, true, ['bulkDelete']);
