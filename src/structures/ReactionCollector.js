@@ -39,7 +39,8 @@ class ReactionCollector extends Collector {
      */
     this.total = 0;
 
-    if (this.client.getMaxListeners() !== 0) this.client.setMaxListeners(this.client.getMaxListeners() + 1);
+
+    if (this.client.getMaxListeners() !== 0) this.client.setMaxListeners(this.client.getMaxListeners() + 2);
     this.client.on('messageReactionAdd', this.listener);
     this.client.on('messageReactionRemove', this.listener);
 
@@ -83,7 +84,8 @@ class ReactionCollector extends Collector {
    */
   cleanup() {
     this.client.removeListener('messageReactionAdd', this.listener);
-    if (this.client.getMaxListeners() !== 0) this.client.setMaxListeners(this.client.getMaxListeners() - 1);
+    this.client.removeListener('messageReactionRemove', this.listener);
+    if (this.client.getMaxListeners() !== 0) this.client.setMaxListeners(this.client.getMaxListeners() - 2);
   }
 }
 
