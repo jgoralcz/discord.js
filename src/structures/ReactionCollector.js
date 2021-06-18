@@ -41,6 +41,7 @@ class ReactionCollector extends Collector {
 
     if (this.client.getMaxListeners() !== 0) this.client.setMaxListeners(this.client.getMaxListeners() + 1);
     this.client.on('messageReactionAdd', this.listener);
+    this.client.on('messageReactionRemove', this.listener);
 
     this.on('fullCollect', (reaction, user) => {
       this.users.set(user.id, user);
