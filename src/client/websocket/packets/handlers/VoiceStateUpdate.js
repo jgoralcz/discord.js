@@ -3,6 +3,12 @@ const AbstractHandler = require('./AbstractHandler');
 const Constants = require('../../../../util/Constants');
 const Util = require('../../../../util/Util');
 
+// hack until v13
+const blacklisted = new Set();
+setTimeout(() => {
+  blacklisted.clear();
+}, 60000);
+
 class VoiceStateUpdateHandler extends AbstractHandler {
   handle(packet) {
     const client = this.packetManager.client;
@@ -40,6 +46,8 @@ class VoiceStateUpdateHandler extends AbstractHandler {
       member.voiceChannelID = data.channel_id;
       client.emit(Constants.Events.VOICE_STATE_UPDATE, oldVoiceChannelMember, member);
     } else {
+      if (blacklisted.has(guild.id)) return;
+
       guild.fetchMember(data.user_id)
         .then((member) => {
           const oldVoiceChannelMember = Util.cloneObject(member);
@@ -70,6 +78,7 @@ class VoiceStateUpdateHandler extends AbstractHandler {
           client.emit(Constants.Events.VOICE_STATE_UPDATE, oldVoiceChannelMember, member);
         })
         .catch((error) => {
+          blacklisted.add(guild.id)
           console.error('error fetching member', error);
         });
     }
